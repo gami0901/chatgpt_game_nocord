@@ -1,0 +1,111 @@
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const turnText = document.getElementById("turnText");
+const passButton = document.getElementById("passButton");
+
+const gridSize = 40;
+const pointRadius = 5;
+let player = "A";
+let points = [];
+let lines = { A: [], B: [] };
+let lastPlacedPoint = null;
+let hasPlacedPoint = false;
+
+canvas.addEventListener("click", onClickCanvas);
+passButton.addEventListener("click", onClickPassButton);
+updateTurnText();
+
+function onClickCanvas(event) {
+    if (hasPlacedPoint) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const gridX = Math.round(x / gridSize) * gridSize;
+        const gridY = Math.round(y / gridSize) * gridSize;
+
+        const targetPointIndex = points.findIndex(
+            (point) => point.x === gridX && point.y === gridY && point.player === player
+        );
+
+        if (targetPointIndex !== -1) {
+            const targetPoint = points[targetPointIndex];
+            if (!lineExists(player, lastPlacedPoint, targetPoint) && !lineExists(opponent(), lastPlacedPoint, targetPoint)) {
+                drawLine(lastPlacedPoint.x, lastPlacedPoint.y, targetPoint.x, targetPoint.y, player);
+                lines[player].push({ x1: lastPlacedPoint.x, y1: lastPlacedPoint.y, x2: targetPoint.x, y2: targetPoint.y });
+                hasPlacedPoint = false;
+                passButton.disabled = true;
+                nextTurn();
+            }
+        }
+    } else {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const gridX = Math.round(x / gridSize) * gridSize;
+        const gridY = Math.round(y / gridSize) * gridSize;
+
+        if (!pointExists(gridX, gridY)) {
+            drawPoint(gridX, gridY, player);
+            points.push({ x: gridX, y: gridY, player: player });
+            lastPlacedPoint = { x: gridX, y: gridY };
+            hasPlacedPoint = true;
+            passButton.disabled = false;
+            updateTurnText(true);
+        }
+    }
+}
+
+function onClickPassButton() {
+    passButton.disabled = true;
+    hasPlacedPoint = false;
+    nextTurn();
+}
+
+function pointExists(x, y) {
+    return points.some((point) => point.x === x && point.y === y);
+}
+
+function drawPoint(x, y, player) {
+    ctx.beginPath();
+    ctx.arc(x, y, pointRadius, 0, Math.PI * 2);
+    ctx.fillStyle = player === "A" ? "red" : "blue";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function lineExists(player, point1, point2) {
+    return lines[player].some(
+        (line) =>
+            (line.x1 === point1.x && line.y1 === point1.y && line.x2 === point2.x && line.y2 === point2.y) ||
+            (line.x1 === point2.x && line.y1 === point2.y && line.x2 === point1.x && line.y2 === point1.y)
+    );
+}
+
+function drawLine(x1, y1, x2, y2, player) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = player === "A" ? "red" : "blue";
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function nextTurn() {
+    player = player === "A" ? "B" : "A";
+    updateTurnText();
+}
+
+function updateTurnText(hasPlaced = false) {
+    if (hasPlaced) {
+        turnText.textContent = `Player ${player} (selecting line)`;
+    } else {
+        turnText.textContent = `Player ${player} (placing point)`;
+    }
+}
+
+function opponent() {
+    return player === "A" ? "B" : "A";
+}

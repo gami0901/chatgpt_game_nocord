@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen Tower Battle</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #gameCanvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #gameInfo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #scoreInfo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #rules {
+            max-width: 600px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameInfo">
+        <div id="turnText"></div>
+        <button id="passButton" disabled>Pass</button>
+    </div>
+    <div id="scoreInfo">
+        <div id="playerAScore">Player A score: 0</div>
+        <div id="playerBScore">Player B score: 0</div>
+    </div>
+    <div id="rules">
+        <h3>操作説明</h3>
+        <ul>
+            <li>Passボタンを押すとターンをPassできる</li>
+            <li>線を引く際は、既に置かれている自分の色の点をクリックすることで線を引くことができる</li>
+        </ul>
+        <h3>ルール説明</h3>
+        <ul>
+            <li>プレイヤーAとプレイヤーBが交互にゲームボードに点を打つ</li>
+            <li>プレイヤーは自分の点を繋げて四角形を作ることを目指す</li>
+            <li>線の引き方は「今打った点と元々置かれていた点を結ぶ」「線を引かない」の２通り</li>
+            <li>線を引く際のルールとして、既に引かれている線をまたぐような線を引くことはできない</li>
+            <li>また四角形が完成する場合のみ、2本目の線を引くことができる</li>
+            <li>その際、「今打った点と、元々置かれていた点を結ぶ」ルールは適用される</li>
+            <li>点を打つ際に、元々点が置かれている場所には点を打てない</li>
+            <li>四角形が完成した場合、対応するプレイヤーのスコアが1増える</li>
+            <li>ゲームは無制限に続けられるが、ゲームボード上にこれ以上点を打てなくなった場合や、プレイヤーが終了したいと判断した場合に終了する</li>
+            <li>最終的に四角形を完成させた回数が多いプレイヤーが勝者</li>
+        </ul>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
