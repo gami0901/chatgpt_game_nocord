@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot Game</title>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="600" style="border: 1px solid;"></canvas>
+    <p id="turnText"></p>
+    <button id="passButton" disabled>Pass</button>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const turnText = document.getElementById("turnText");
+        const passButton = document.getElementById("passButton");
+
+        const gridSize = 40;
+        const pointRadius = 5;
+        let player = "A";
+        let points = [];
+
+        canvas.addEventListener("click", onClickCanvas);
+        passButton.addEventListener("click", onClickPassButton);
+        updateTurnText();
+
+        function onClickCanvas(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const gridX = Math.round(x / gridSize) * gridSize;
+            const gridY = Math.round(y / gridSize) * gridSize;
+
+            if (!pointExists(gridX, gridY)) {
+                drawPoint(gridX, gridY, player);
+                points.push({ x: gridX, y: gridY, player: player });
+                passButton.disabled = false;
+                updateTurnText(true);
+            }
+        }
+
+        function onClickPassButton() {
+            passButton.disabled = true;
+            nextTurn();
+        }
+
+        function pointExists(x, y) {
+            return points.some((point) => point.x === x && point.y === y);
+        }
+
+        function drawPoint(x, y, player) {
+            ctx.beginPath();
+            ctx.arc(x, y, pointRadius, 0, Math.PI * 2);
+            ctx.fillStyle = player === "A" ? "red" : "blue";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function nextTurn() {
+            player = player === "A" ? "B" : "A";
+            updateTurnText();
+        }
+
+        function updateTurnText(drawingLine = false) {
+            if (drawingLine) {
+                turnText.textContent = `Player ${player} (drawing line)`;
+            } else {
+                turnText.textContent = `Player ${player} (placing point)`;
+            }
+        }
+    </script>
+</body>
+</html>

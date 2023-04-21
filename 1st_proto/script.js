@@ -7,7 +7,6 @@ const players = ["A", "B"];
 let currentPlayer = 0;
 let points = { A: [], B: [] };
 let score = { A: 0, B: 0 };
-let lastClickedPoint = null;
 
 canvas.addEventListener("click", (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -18,25 +17,12 @@ canvas.addEventListener("click", (event) => {
     const gridY = Math.round(y / gridSize) * gridSize;
 
     const player = players[currentPlayer];
+    points[player].push({ x: gridX, y: gridY });
 
-    if (lastClickedPoint && lastClickedPoint.player === player) {
-        const otherPointIndex = points[player].findIndex(
-            (p) => p.x === gridX && p.y === gridY
-        );
-        if (otherPointIndex > -1) {
-            const otherPoint = points[player][otherPointIndex];
-            drawLine(lastClickedPoint, otherPoint, player);
-            lastClickedPoint = null;
-            checkForSquare(player);
-            currentPlayer = (currentPlayer + 1) % 2;
-        } else {
-            lastClickedPoint = null;
-        }
-    } else {
-        points[player].push({ x: gridX, y: gridY });
-        drawPoint(gridX, gridY, player);
-        lastClickedPoint = { x: gridX, y: gridY, player: player };
-    }
+    drawPoint(gridX, gridY, player);
+    checkForSquare(player);
+
+    currentPlayer = (currentPlayer + 1) % 2;
 });
 
 function drawPoint(x, y, player) {
@@ -44,16 +30,6 @@ function drawPoint(x, y, player) {
     ctx.arc(x, y, pointRadius, 0, 2 * Math.PI);
     ctx.fillStyle = player === "A" ? "red" : "blue";
     ctx.fill();
-    ctx.closePath();
-}
-
-function drawLine(p1, p2, player) {
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.strokeStyle = player === "A" ? "red" : "blue";
-    ctx.lineWidth = 2;
-    ctx.stroke();
     ctx.closePath();
 }
 
@@ -78,6 +54,22 @@ function checkForSquare(player) {
             }
         }
     }
+}
+
+function pointExists(pointsArray, point) {
+    return pointsArray.some((p) => p.x === point.x && p.y === point.y);
+}
+
+function drawSquare(p1, p2, corner1, corner2, player) {
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(corner1.x, corner1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(corner2.x, corner2.y);
+    ctx.closePath();
+    ctx.strokeStyle = player === "A" ? "red" : "blue";
+    ctx.lineWidth = 2;
+    ctx.stroke();
 }
 
 function updateScore(player) {
